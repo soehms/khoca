@@ -25,6 +25,13 @@ jobs:
         id: checkout_code
         uses: actions/checkout@v2
 
+      # Installs dependencies
+      - name: Install Dependencies
+        id: dependencies
+        run: |
+            sudo apt-get update
+            sudo apt-get install pari-gp libgmp-dev
+
       # Runs a python script searching for new changes in the database
       - name: Make
         id: make
