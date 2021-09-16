@@ -1,0 +1,38 @@
+# This workflow runs tests to build Khoca on verois systems
+
+name: Run Tests
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  # This workflow contains one job called build
+  build:
+    name: Build Khoca
+    # search for differences to the origianl databases
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out the repository under $GITHUB_WORKSPACE, so our job can access it
+      - name: Checkout code
+        id: checkout_code
+        uses: actions/checkout@v2
+
+      # Installs dependencies
+      - name: Install Dependencies
+        id: dependencies
+        run: |
+            sudo apt-get update
+            sudo apt-get install pari gmp
+
+      # Runs a python script searching for new changes in the database
+      - name: Make
+        id: make
+        run: make
+
+      # Runs a shell script to push a new version to the repository if necessary
+      - name: Run Test
+        id: run_test
+        run: |
+          ./khoca.py 0 0.0 0 braidaBaB calc0 | grep -c "t^-2q^4 + t^-1q^2 + t^0q^0 + t^1q^-2 + t^2q^-4"
