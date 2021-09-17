@@ -1,5 +1,5 @@
 CC=g++
-PYTHONVERSION=3.6
+PYTHONVERSION=3.8
 GENERALCFLAGS=-c -std=c++11 -I/usr/include/python$(PYTHONVERSION)m -D__STDC_LIMIT_MACROS -Wall -Wextra -march=native
 
 STATIC_DIRECTIVE=-lpython$(PYTHONVERSION)m -lgmpxx -lgmp -L/usr/local/lib -lpari
