@@ -5,9 +5,9 @@ name: Run Tests
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ replace_mpir_by_gmp ]
+    branches: [ docker_images ]
   pull_request:
-    branches: [ replace_mpir_by_gmp ]
+    branches: [ docker_images ]
 
   workflow_dispatch:
 
