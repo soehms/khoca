@@ -2,7 +2,7 @@
 # HOWTO use this file for local builds                                         #
 ################################################################################
 # To build Khoca, run this command from your khoca/ directory:                 #
-# $ docker build -f docker/Dockerfile --target=make-build --tag khoca .        #
+# $ docker build -f docker/Dockerfile --tag khoca .                            #
 # To run Khoca:                                                                #
 # $ docker run -it khoca                                                       #
 ################################################################################
