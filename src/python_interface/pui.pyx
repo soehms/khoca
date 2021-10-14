@@ -199,6 +199,7 @@ def pCalculateHomology(idx, nice, num_threads, printCommand, printEquivariant, p
 			if (not higherPageExists):
 				printCommand("The spectral sequence collapses on the first page.\n")
 			stack.resetPage()
+	return eval(s)
 
 def pSum(target, idx1, idx2, num_threads, progress):
 	global stack

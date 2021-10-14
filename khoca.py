@@ -26,18 +26,33 @@
 import sys
 sys.path.insert(0, './bin/')
 
-from pui import pCalcSubTangleTree, pCalculateHomology, pGlueReduced, pCopyHomology, pFirstFreeIdx, pSaveComplexToFile, pDeleteComplex, pLoadComplexFromFile, pSum, pDual, pDeleteNonIsos, pResetSimplificationsCounter, pReducify, pIniStack, pSetRoot, pPrintHomology, pPrintCompileInfo, pCalculateEquiHomology
+import os
+
+def interactive():
+    head, tail = os.path.split(__file__)
+    if not head:
+        return False
+    head, tail = os.path.split(head)
+    if tail == 'khoca':
+        return True
+    else:
+        return False
+
 import random
 import re
 import math
 
 sys.path.append('.')
-import KrasnerGaussToMyPDLib, pseudoBraidToKrasnerGaussLib, BraidToMyPD
+if interactive():
+    from khoca.bin.pui import pCalcSubTangleTree, pCalculateHomology, pGlueReduced, pCopyHomology, pFirstFreeIdx, pSaveComplexToFile, pDeleteComplex, pLoadComplexFromFile, pSum, pDual, pDeleteNonIsos, pResetSimplificationsCounter, pReducify, pIniStack, pSetRoot, pPrintHomology, pPrintCompileInfo, pCalculateEquiHomology
+    from khoca.bin import KrasnerGaussToMyPDLib, pseudoBraidToKrasnerGaussLib, BraidToMyPD
+else:
+    from pui import pCalcSubTangleTree, pCalculateHomology, pGlueReduced, pCopyHomology, pFirstFreeIdx, pSaveComplexToFile, pDeleteComplex, pLoadComplexFromFile, pSum, pDual, pDeleteNonIsos, pResetSimplificationsCounter, pReducify, pIniStack, pSetRoot, pPrintHomology, pPrintCompileInfo, pCalculateEquiHomology
+    import KrasnerGaussToMyPDLib, pseudoBraidToKrasnerGaussLib, BraidToMyPD
 
 
 debugging = False
 NUM_THREADS = 1 if debugging else 12
-
 
 
 ## Converts a link diagram given in the Planar-diagram notation to the mypd format.
@@ -276,6 +291,7 @@ def run_commandline(argv, printCommand, progress):
         # doing the work
         shift = 0
         idxTranslator = [0]
+        res = []
         for i in argv[(NUM_ARGUMENTS + 1):]:
             if i[:3].capitalize() == "Nat":
                 l = getInts(i, False)
@@ -327,7 +343,8 @@ def run_commandline(argv, printCommand, progress):
                 printCommand("Result:")
                 printCommand("Unreduced Homology:")
                 pGlueReduced(firstFreeIdx, 1, NUM_THREADS, progress)
-                pCalculateHomology(firstFreeIdx, False, NUM_THREADS, printCommand, equivariant, progress)
+                s = pCalculateHomology(firstFreeIdx, False, NUM_THREADS, printCommand, equivariant, progress)
+                res.append(s)
                 pDeleteComplex(firstFreeIdx)
             elif i[:4].capitalize() == "Calc":
                 nice = (i[4:8].capitalize() == "Nice")
@@ -346,10 +363,12 @@ def run_commandline(argv, printCommand, progress):
                 printCommand("Result:")
                 printCommand("Reduced Homology:")
                 pReducify(secondFreeIdx)
-                pCalculateHomology(secondFreeIdx, nice, NUM_THREADS, printCommand, equivariant, progress, True)
+                s = pCalculateHomology(secondFreeIdx, nice, NUM_THREADS, printCommand, equivariant, progress, True)
+                res.append(s)
                 printCommand("Unreduced Homology:")
                 pGlueReduced(firstFreeIdx, 1, NUM_THREADS, progress)
-                pCalculateHomology(firstFreeIdx, nice, NUM_THREADS, printCommand, equivariant, progress, True)
+                s = pCalculateHomology(firstFreeIdx, nice, NUM_THREADS, printCommand, equivariant, progress, True)
+                res.append(s)
                 pDeleteComplex(firstFreeIdx)
                 pDeleteComplex(secondFreeIdx)
             elif i[:4].capitalize() == "Save":
@@ -381,6 +400,7 @@ def run_commandline(argv, printCommand, progress):
             else:
                 printCommand(str(i) + " is not a valid command.")
                 sys.exit()
+        return res
 
 
 def parseOptions(argv):
@@ -402,10 +422,11 @@ def parseOptions(argv):
 HELP_TEXT = "Expecting at least three arguments:\n(1) The coefficient ring; 0 for integers, 1 for rationals, a prime p for the finite field with p elements,\n(2) the vector [a_0, ... a_{N-1}] defining the Frobenius algebra F[X]/(X^N+a_{N-1}X^{N-1}+...+a_0) or e followed by the number N for equivariant,\n(3) a root of the polynomial given in (2).\nAny following argument is interpreted as command. For example,\n./khoca.py 0 0.0 0 braidaBaB calc0\ncomputes integral Khovanov sl(2)-homology of the figure-eight knot.\nRefer to the README file or to http://lewark.de/lukas/khoca.html for more detailed help."
 verbose = 0
 progress = 0
-a = parseOptions(sys.argv)
 
 if (verbose):
     pPrintCompileInfo()
     sys.stderr.write(("Multithreading with " + str(NUM_THREADS) + " threads.\n") if (NUM_THREADS > 1) else "No multithreading.\n")
 
-run_commandline(a, print, progress)
+if not interactive():
+    a = parseOptions(sys.argv)
+    run_commandline(a, print, progress)
