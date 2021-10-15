@@ -243,14 +243,23 @@ def pCalcSubTangleTree(s, num_threads, progress):
 def loadType(idx, typeIdx):
 	global stack
 	cdef string s
+	data_dir = 'data'
+	from os import path
+	try:
+		import khoca
+		data_dir = path.join(path.dirname(khoca.__file__), data_dir)
+	except ImportError:
+		pass
+
+	encode = 'utf-8'
 	if (typeIdx == 0):
-		s = b"data/KrasnerPlus.bin"
+		s = bytes(path.join(data_dir, 'KrasnerPlus.bin'), encode)
 	elif (typeIdx == 1):
-		s = b'data/KrasnerMinus.bin'
+		s = bytes(path.join(data_dir, 'KrasnerMinus.bin'), encode)
 	elif (typeIdx == 2):
-		s = b'data/KhovanovPlus.bin'
+		s = bytes(path.join(data_dir, 'KhovanovPlus.bin'), encode)
 	elif (typeIdx == 3):
-		s = b'data/KhovanovMinus.bin'
+		s = bytes(path.join(data_dir, 'KhovanovMinus.bin'), encode)
 	else:
 		print("Unknown type: " + str(typeIdx))
 		sys.exit()
