@@ -38,6 +38,13 @@ def interactive():
     else:
         return False
 
+def run_command_exit(print_command, err_mess):
+    if interactive():
+        raise ValueError(err_mess)
+    else:
+        print_command(err_mess)
+        sys.exit()
+
 import random
 import re
 import math
@@ -296,8 +303,7 @@ def run_commandline(argv, printCommand, progress):
             if i[:3].capitalize() == "Nat":
                 l = getInts(i, False)
                 if (len(l) % 5 != 0) or (len(l) == 0):
-                    printCommand("The native code (\"" + i[3:] +  "\") following the command \"nat\" must be a non-empty list of integers whose length is divisible by five.")
-                    sys.exit()
+                    run_command_exit(printCommand, "The native code (\"" + i[3:] +  "\") following the command \"nat\" must be a non-empty list of integers whose length is divisible by five.")
         
                 mypd = [list(j) for j in zip(*[iter(l)]*5)]
                 mypd = reducePD(mypd)
@@ -332,8 +338,7 @@ def run_commandline(argv, printCommand, progress):
             elif i[:10].capitalize() == "Calcnonred":
                 l = getInts(i, False)
                 if (len(l) != 1):
-                    printCommand("\"Calcnonred\" must be followed by exactly one unsigned integer.")
-                    sys.exit()
+                    run_command_exit(printCommand, "\"Calcnonred\" must be followed by exactly one unsigned integer.")
                 idx = idxTranslator[l[0]]
                 firstFreeIdx = shift
                 shift += 1
@@ -350,8 +355,7 @@ def run_commandline(argv, printCommand, progress):
                 nice = (i[4:8].capitalize() == "Nice")
                 l = getInts(i, False)
                 if (len(l) != 1):
-                    printCommand("\"Calc\" must be followed by exactly one unsigned integer.")
-                    sys.exit()
+                    run_command_exit(printCommand, "\"Calc\" must be followed by exactly one unsigned integer.")
                 idx = idxTranslator[l[0]]
                 firstFreeIdx = shift
                 secondFreeIdx = shift + 1
@@ -374,8 +378,7 @@ def run_commandline(argv, printCommand, progress):
             elif i[:4].capitalize() == "Save":
                 l = re.match("[0-9]+", i[4:])
                 if (l == None):
-                    printCommand("\"Save\" must be followed by an unsigned integer and a filename.")
-                    sys.exit()
+                    run_command_exit(printCommand, "\"Save\" must be followed by an unsigned integer and a filename.")
                 pSaveComplexToFile(idxTranslator[int(l.group(0))], i[(4 + len(l.group(0))):]) 
             elif i[:4].capitalize() == "Load":
                 pLoadComplexFromFile(shift, i[4:])
@@ -384,22 +387,19 @@ def run_commandline(argv, printCommand, progress):
             elif i[:4].capitalize() == "Dual":
                 l = re.match("[0-9]+", i[4:])
                 if (l == None):
-                    printCommand("\"Dual\" must be followed by an unsigned integer.")
-                    sys.exit()
+                    run_command_exit(printCommand, "\"Dual\" must be followed by an unsigned integer.")
                 pDual(shift, int(l.group(0)))
                 shift += 1
                 idxTranslator += [shift]
             elif i[:3].capitalize() == "Sum":
                 l = getInts(i, False)
                 if (len(l) != 2):
-                    printCommand("\"Sum\" must be followed by exactly two unsigned integer.")
-                    sys.exit()
+                    run_command_exit(printCommand, "\"Sum\" must be followed by exactly two unsigned integer.")
                 pSum(shift, idxTranslator[l[0]], idxTranslator[l[1]], NUM_THREADS, progress)
                 shift += 1
                 idxTranslator += [shift]
             else:
-                printCommand(str(i) + " is not a valid command.")
-                sys.exit()
+                run_command_exit(printCommand, str(i) + " is not a valid command.")
         return res
 
 
