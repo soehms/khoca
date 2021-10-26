@@ -2,21 +2,13 @@
 
 name: Run Tests
 
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ docker_image ]
-  pull_request:
-    branches: [ docker_image ]
-
-  workflow_dispatch:
-
+# Triggers the workflow on push or pull request events and manually
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   # This workflow contains one job called build
   build:
     name: Build Khoca
-    # search for differences to the origianl databases
     runs-on: ubuntu-latest
 
     steps:
