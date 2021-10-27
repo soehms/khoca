@@ -38,25 +38,14 @@ https://github.com/LLewark/khoca
 
 To run Khoca in Docker type:
 
-<<<<<<< HEAD:README
-docker run -it soehms/khoca:1.0
-=======
 ```bash
 docker run -it soehms/khoca:latest
 ```
->>>>>>> master:README.md
 
 Its download size is 162 MB and it will need 516 MB of disk space on your
 device. To create a new (resp. locally own) Docker image cd to the khoca
 directory type
 
-<<<<<<< HEAD:README
-docker build -f docker/Dockerfile --tag khoca .
-
-
-Usage
------
-=======
 ```bash
 docker build -f Dockerfile --tag khoca:<your_tag> .
 ```
@@ -66,7 +55,6 @@ errors. In that case you better should use the image `soehms/khoca:old_cpu`.
 
 
 ## Usage
->>>>>>> master:README.md
 
 To use the program, run khoca.py (a python3 script) from the command line.
 khoca.py takes three arguments:

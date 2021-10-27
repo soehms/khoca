@@ -75,15 +75,15 @@ pui_ext = create_extension(pui_name, cpp_files, include_dirs)
 
 long_description = """
 Khoca is a packaging of Lukas Lewark's Khovanov homology calculator
-`khoca <https://github.com/LLewark/khoca/>`_  for easy installation in
-`sage <http://www.sagemath.org/>`_.
+[khoca](https://github.com/LLewark/khoca/)  for easy installation in
+[sage](http://www.sagemath.org/).
 
 From the original page:
 
 """
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(this_directory, 'README'), encoding='utf-8') as f:
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description += f.read()
 
 
@@ -93,6 +93,7 @@ setup(name = khoca_pkg,
       zip_safe = False,
       description = 'Khoca as pip installable package',
       long_description = long_description,
+      long_description_content_type='text/markdown',
       keywords = 'Knot theory, Khovanov homology',
       classifiers = [
            'Development Status :: 3 - Alpha',

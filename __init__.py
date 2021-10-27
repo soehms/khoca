@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# This file contains a Python wrapper class of the commandline version
+# This file contains a Python wrapper class of the command line version
 # of Khoca
 
 # The main work is done by pui.pyx via run_commandline, which is called
@@ -63,7 +63,7 @@ class InteractiveCalculator:
     """
     def __init__(self, coefficient_ring=0, frobenius_algebra=(0, 0), root=0, equivariant=None):
         r"""
-        Constructor
+        Constructor.
 
         INPUT:
 
@@ -71,7 +71,7 @@ class InteractiveCalculator:
               can be given by an integer (or string convertible to an integer):
               -  ``0`` (default) the ring of integers
               -  ``1``  the rational field
-              -  a prime for the corrsponding finite field
+              -  a prime for the corresponding finite field
             - ``frobenius_algebra`` -- the Frobenius algebra ``F[x]/p`` given by
               the coefficients of the normed polynomial ``p`` (default is
               ``p = X^2``) as a tuple of length ``deg(p)`` where the constant
@@ -129,7 +129,7 @@ class InteractiveCalculator:
 
     def __repr__(self):
         r"""
-        String representation of self.
+        String representation of ``self``.
 
         EXAMPLES::
 
@@ -142,17 +142,17 @@ class InteractiveCalculator:
 
     def __call__(self, link, command=None, print_messages=False, verbose_on=False, progress_bars=False):
         r"""
-        Instance call to apply the calculator to a link with
-        respect to a certain command.
+        Instance call to apply the calculator to a link with respect to a
+        certain command.
 
         INPUT:
 
             - ``link`` -- the link to which the calculation should be done.
               It can be given as a Tuple which will be interpreted as a braid
               in Tietze form which closure is the link in question. Further
-              a list of lists is excepted which will be interpreted as a list
+              a list of lists is accepted which will be interpreted as a list
               of crossings in pd-notation. Alternatively you can declare the
-              link by a string. The following formats are exepted:
+              link by a string. The following formats are accepted:
  
               - ``BraidX`` for a braid formatted as in knotscape (``a`` = first
                 Artin generator, ``A`` = its inverse, ``b`` = second Artin
@@ -182,17 +182,17 @@ class InteractiveCalculator:
                 ``True`` the print output of the command line version is
                 returned as a list on the second output position. By default
                 all print messages to ``stdout`` of the command line version
-                is suppressed.
-              - ``verbose_on`` boolean (default is ``False``). If set to
-                ``True`` all print messages to ``stdout`` together with
+                are suppressed.
+              - ``verbose_on`` boolean (default is ``False``). If it is set
+                to ``True`` all print messages to ``stdout`` together with
                 special verbose messages of the command line version are
                 printed.
-              - ``progress_bars`` boolean (default is ``False``). If set to
-                ``True`` progress bars will be printed.
+              - ``progress_bars`` boolean (default is ``False``). If it is
+                set to ``True`` progress bars will be printed.
 
         OUTPUT:
 
-            Tow lists of quadruples the first for reduced and the second for
+            Two lists of quadruples the first for reduced and the second for
             unreduced homology. In such a quadruple the first item stands for
             the ``t``-degree, the second for the ``q``-degree, the third for
             the torsion and the last item stands for the coefficient of the
