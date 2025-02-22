@@ -338,7 +338,7 @@ class Complex : public AbstractComplex {
         explicit Complex(std::ifstream &f);
 
         void initialiseFrobenius(const std::vector<int> &F, int N) const {
-            cobordism_tpl::intialiseFrobenius(F, N); 
+            cobordism_tpl::initialiseFrobenius(F, N);
         }
         void printFrobenius(std::ostream& s) const {
             const int N = cobordism_tpl::frobenius.size() - 1;
