@@ -382,6 +382,8 @@ public Cobo<KrasnerTangle, KrasnerCobo<coeff_tpl, bitSize>, coeff_tpl> {
             }
         }
         static void intialiseFrobenius(const std::vector<int> &F, int N) {
+            frobenius.clear();
+            multVector.clear();
             coeff_tpl::intialiseFrobenius(frobenius, F, N);
         }
         // multVector contains the value of X^n for all (needed) n.
