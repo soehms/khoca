@@ -1,0 +1,61 @@
+name: Build wheels
+
+on:
+  push:
+    tags:
+      - "*" # Push events of new tags
+  workflow_dispatch:
+    # Allow to run manually
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Used to host cibuildwheel
+      - uses: actions/setup-python@v5
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.22.0
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        # env:
+        #  CIBW_BEFORE_ALL: sh .install-pari.sh
+        #  CIBW_ENVIRONMENT: CC=g++
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  pypi-publish:
+    # https://github.com/pypa/gh-action-pypi-publish
+    name: Upload wheels to PyPI
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    env:
+      CAN_DEPLOY: ${{ secrets.PYPI_TOCKEN_KHOCA != '' }}
+    steps:
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-wheels*
+          path: wheelhouse
+          merge-multiple: true
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN_KHOCA }}
+          packages_dir: wheelhouse/
+          skip_existing: true
+          verbose: true
+        # if: env.CAN_DEPLOY == 'true'
