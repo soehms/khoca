@@ -26,9 +26,9 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-        # to supply options, put them in 'env', like:
-        # env:
-        #   CIBW_SOME_OPTION: value
+        env:
+          CIBW_BEFORE_ALL: apt-get -qq update && apt-get -qq install -y --no-install-recommends g++ libgmp-dev pari-gp2c
+          CIBW_ENVIRONMENT: CC=g++
 
       - uses: actions/upload-artifact@v4
         with:
