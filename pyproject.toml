@@ -9,12 +9,20 @@ build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
 build = ["cp3*"]
-archs = ["x86_64"]
-environment = {CC="g++"}
-before-all = "yum -q update && yum -q -y install gmp-devel && sh .install-pari.sh"
+archs = ["auto64"]
 test-requires = ["py", "pytest"]
 test-command = "cd /project && pytest && cd .."
 
 [[tool.cibuildwheel.overrides]]
+select = "*-manylinux*"
+inherit.environment = "append"
+environment = {CC="g++"}
+inherit.before-all = "append"
+before-all = "yum -q update && yum -q -y install gmp-devel && sh .install-pari.sh"
+
+[[tool.cibuildwheel.overrides]]
 select = "*-musllinux*"
+inherit.environment = "append"
+environment = {CC="g++"}
+inherit.before-all = "append"
 before-all = "apk add gmp-dev && sh .install-pari.sh"
