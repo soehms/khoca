@@ -6,9 +6,15 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
 [tool.cibuildwheel]
-build = ["cp38-manylinux_x86_64", "cp39-manylinux_x86_64", "cp310-manylinux_x86_64", "cp311-manylinux_x86_64", "cp312-manylinux_x86_64"]
+build = ["cp3*"]
+archs = ["x86_64"]
 environment = {CC="g++"}
 before-all = "yum -q update && yum -q -y install gmp-devel && sh .install-pari.sh"
 test-requires = ["py", "pytest"]
 test-command = "cd /project && pytest && cd .."
+
+[[tool.cibuildwheel.overrides]]
+select = "*-musllinux*"
+before-all = "apk add gmp-dev && sh .install-pari.sh"
