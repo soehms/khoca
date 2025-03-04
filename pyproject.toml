@@ -10,3 +10,5 @@ build-backend = "setuptools.build_meta"
 build = ["cp38-manylinux_x86_64", "cp39-manylinux_x86_64", "cp310-manylinux_x86_64", "cp311-manylinux_x86_64", "cp312-manylinux_x86_64"]
 environment = {CC="g++"}
 before-all = "yum -q update && yum -q -y install gmp-devel && sh .install-pari.sh"
+test-requires = ["py", "pytest"]
+test-command = "cd /project && pytest && cd .."
