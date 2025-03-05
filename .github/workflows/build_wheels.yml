@@ -1,11 +1,18 @@
-name: Build wheels
+name: Reusable workflow for cibuildwheel
 
 on:
-  push:
-    tags:
-      - "*" # Push events of new tags
-  workflow_dispatch:
-    # Allow to run manually
+  workflow_call:
+    inputs:
+      operating-systems:
+        default: >-
+          ["ubuntu-latest"]
+        type: string
+      before-all:
+        default: yum -q update && yum -q -y install gmp-devel && sh .install-pari.sh
+        type: string
+      environment:
+        default: CC=g++
+        type: string
 
 jobs:
   build_wheels:
@@ -13,8 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, macos-13, macos-14]
-        os: [macos-13, macos-14]
+        os: ${{ fromJson(inputs.operating-systems) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -27,36 +33,11 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-        # env:
-        #  CIBW_BEFORE_ALL: sh .install-pari.sh
-        #  CIBW_ENVIRONMENT: CC=g++
+        env:
+          CIBW_BEFORE_ALL: ${{ inputs.before-all }}
+          CIBW_ENVIRONMENT: ${{ inputs.environment }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
-
-  pypi-publish:
-    # https://github.com/pypa/gh-action-pypi-publish
-    name: Upload wheels to PyPI
-    needs: build_wheels
-    runs-on: ubuntu-latest
-    env:
-      CAN_DEPLOY: ${{ secrets.PYPI_TOCKEN_KHOCA != '' }}
-    steps:
-
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: cibw-wheels*
-          path: wheelhouse
-          merge-multiple: true
-
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN_KHOCA }}
-          packages_dir: wheelhouse/
-          skip_existing: true
-          verbose: true
-        # if: env.CAN_DEPLOY == 'true'
