@@ -48,7 +48,7 @@ jobs:
           
       - name: Build gmp and pari
         run: |
-          bash .install-pari-msys2.sh pari64 gmp64
+          bash install-pari-msys2.sh pari64 gmp64
 
       - name: Build many wheels
         run: |

@@ -7,13 +7,7 @@ on:
         default: >-
           ["ubuntu-latest"]
         type: string
-      before-all:
-        default: yum -q update && yum -q -y install gmp-devel && sh .install-pari.sh
-        type: string
-      environment:
-        default: CC=g++
-        type: string
-
+        required: true
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
@@ -33,9 +27,6 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-        env:
-          CIBW_BEFORE_ALL: ${{ inputs.before-all }}
-          CIBW_ENVIRONMENT: ${{ inputs.environment }}
 
       - uses: actions/upload-artifact@v4
         with:

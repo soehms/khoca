@@ -1,28 +1,14 @@
-name: Build wheels MacOS
+name: Reusable workflow to publish to PyPI
 
 on:
-  push:
-    tags:
-      - "*" # Push events of new tags
-  workflow_dispatch:
-    # Allow to run manually
+  workflow_call:
 
 jobs:
-  build_wheels:
-    uses: ./.github/workflows/build_wheels.yml
-    with:
-      operating-systems: >-
-        ["macos-13", "macos-14"]
-
   pypi-publish:
     # https://github.com/pypa/gh-action-pypi-publish
     name: Upload wheels to PyPI
-    needs: build_wheels
     runs-on: ubuntu-latest
-    env:
-      CAN_DEPLOY: ${{ secrets.PYPI_TOCKEN_KHOCA != '' }}
     steps:
-
       - uses: actions/download-artifact@v4
         with:
           pattern: cibw-wheels*
