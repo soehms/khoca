@@ -20,8 +20,10 @@ from setuptools import distutils
 from distutils.core import Extension
 from setuptools import setup
 from Cython.Build import cythonize
+from platform import system
 
 join = os.path.join
+env = os.environ
 
 khoca_dir      = '.'
 src_dir        = 'src'
@@ -35,6 +37,18 @@ data_pkg       = join(khoca_pkg, data_dir)
 converters_pkg = join(khoca_pkg, converters_dir)
 
 pui_name = join(bin_pkg, 'pui')
+
+extra_compile_args = ['-c', '-std=c++11', '-D__STDC_LIMIT_MACROS', '-Wall', '-shared', '-fPIC', '-O3']
+extra_link_args = ['-lpthread', '-lstdc++', '-t']
+if system() == 'Linux':
+    extra_compile_args += ['-fopenmp']
+    extra_link_args += ['-z defs']
+elif system() == 'Darwin':
+    extra_compile_args += ['-I/opt/homebrew/opt/libomp/include', '-I/Users/runner/work/khoca/khoca/libcache/pari/include/', '-I/opt/homebrew/include']
+    extra_link_args += ['-L/opt/homebrew/opt/libomp/lib', '-L/opt/homebrew/lib/', '-L/Users/runner/work/khoca/khoca/libcache/pari/lib']
+elif system() == 'Windows':
+    extra_compile_args += ['-IC:\\msys64\\ucrt64\\include', '-IC:\\msys64\\mingw64\\include', '-ID:\\a\\khoca\\khoca\\libcache\\pari\\include']
+    extra_link_args += ['-LC:\\msys64\\ucrt64\\lib', '-LC:\\msys64\\mingw64\\lib', '-LD:\\a\\khoca\\khoca\\libcache\\pari\\lib']
 
 def local_scheme(version):
     return ""
@@ -55,9 +69,9 @@ def create_extension(name, cpps, includes):
     sources = cpps,
     include_dirs = includes,
     language = 'c++',
-    extra_compile_args=['-c', '-std=c++11', '-D__STDC_LIMIT_MACROS', '-Wall', '-shared', '-fPIC', '-O3', '-fopenmp'],
+    extra_compile_args=extra_compile_args,
     libraries = ['gmp','gmpxx','pari'],
-    extra_link_args =['-z defs', '-lpthread', '-lstdc++', '-t'])
+    extra_link_args=extra_link_args)
 
 template_cpp_files = collect_source('', '*Templates.cpp', depth=2)
 cpp_files_with_templ = collect_source('', '*.cpp', depth=2)

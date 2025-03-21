@@ -9,22 +9,19 @@ echo D $CIBW_PLATFORM B $CIBW_BUILD
 
 if [[ $CIBW_PLATFORM == "Linux" ]]; then
     echo "platform is Linux."
-    if [[ $CIBW_BUILD == *"manylinux"* ]]; then
-        echo "building manylinux"
-        yum -q update && yum -q -y install gmp-devel
-    else
-        echo "building musllinux"
-        apk add gmp-dev
-    fi
-    sh install-pari.sh
 elif [[ $CIBW_PLATFORM == "Darwin" ]]; then
     echo "platform is macOS."
-    sh install-pari-msys2.sh
-    brew install libomp
+    echo "GMP: $(find / -name gmp.h)"
+    echo "PARI: $(find / -name pari.h)"
+    echo "LIBGMP: $(find / -name libgmp.a)"
+    echo "LIBPARI: $(find / -name libpari.a)"
+    echo "GMPXX: $(find / -name gmpxx.*)"
 elif [[ $CIBW_PLATFORM == *"MINGW64_NT"* ]]; then
     echo "platform is Windows."
-    bash install-pari-msys2.sh pari64 gmp64
-    ln -s /ucrt64/include/gmp.h /usr/include
+    echo "GMP: $(find /c/msys64 -name gmp.h)"
+    echo "PARI: $(find /d -name pari.h)"
+    echo "LIBGMP: $(find /c/msys64 -name libgmp.a)"
+    echo "LIBPARI: $(find /d -name libpari.a)"
 else
     echo "unknown platform: $CIBW_PLATFORM"
 fi
