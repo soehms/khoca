@@ -13,4 +13,4 @@ archs = ["auto64"]
 before-all = "sh before-all.sh"
 before-build = "sh before-build.sh"
 test-requires = ["py", "pytest"]
-test-command = "cd /project && pytest && cd .."
+test-command = "PWD=$(pwd) && cd {project} && sh test-command.sh && cd $PWD"
