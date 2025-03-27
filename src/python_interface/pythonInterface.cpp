@@ -179,7 +179,7 @@ ComplexStack::ComplexStack(int mod_, std::vector<int> F, int N, int girth, int v
 
 #ifndef getsize
 void ComplexStack::outputTotalSize() const {
-    std::vector<long long> s(8, 0);
+    std::vector<word64> s(8, 0);
     for (std::deque<void*>::const_iterator i = complexStack.cbegin();
             i != complexStack.cend(); ++i)
         if (*i)
@@ -389,9 +389,8 @@ void ComplexStack::startThread(int numJobs, int* status,
     }
 }
 
-int ComplexStack::simplifyComplexParallely(int idx, int numThreads, int progress) {
-    int numJobs;
-    numJobs = ((AbstractComplex*)complexStack.at(idx))->size();
+int ComplexStack::simplifyComplexParallely(int idx, const int numThreads, int progress) {
+    const int numJobs = ((AbstractComplex*)complexStack.at(idx))->size();
 
     // Arrays are used because several threads may write to different
     // indices of one array at the same time.
