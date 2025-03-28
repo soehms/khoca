@@ -389,13 +389,15 @@ void ComplexStack::startThread(int numJobs, int* status,
     }
 }
 
-int ComplexStack::simplifyComplexParallely(int idx, const int numThreads, int progress) {
-    const int numJobs = ((AbstractComplex*)complexStack.at(idx))->size();
+int ComplexStack::simplifyComplexParallely(int idx, int numThreads, int progress) {
+    int numJobs;
+    numJobs = ((AbstractComplex*)complexStack.at(idx))->size();
 
     // Arrays are used because several threads may write to different
     // indices of one array at the same time.
-    int status[numJobs];
-    bool done[numJobs];
+    int* status = new int[numJobs];
+    bool* done = new bool[numJobs];
+
     bool changed = false;
     std::fill_n(status, numJobs, 0);
     std::fill_n(done, numJobs, false);
@@ -405,7 +407,7 @@ int ComplexStack::simplifyComplexParallely(int idx, const int numThreads, int pr
  4: only higher-degree isos left && nothing changed
  5: all matrices are zero && nothing changed
 */
-    std::thread t[numThreads];
+    std::thread* t = new std::thread[numThreads];
     activeThreads = 0;
     for (int i = 0; i < numThreads; ++i)
         t[i] = std::thread(&ComplexStack::startThread, this, numJobs,
@@ -414,6 +416,10 @@ int ComplexStack::simplifyComplexParallely(int idx, const int numThreads, int pr
         t[i].join();
     if (progress)
         io::cprogress() << "\n";
+
+    delete[] status;
+    delete[] done;
+    delete[] t;
 
     return allDone(idx) + (changed ? 0 : 3);
 }

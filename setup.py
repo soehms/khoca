@@ -67,12 +67,11 @@ elif system() == 'Windows':
                      r'C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\ucrt',
                      r'C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\shared']
     extra_compile_args += ['/DDISABLE_INLINE', '/openmp', '/std:c11', '/LD']
-    extra_link_args += [join('Windows', 'crt', 'libparicrt64.a'), 'advapi32.lib', 'legacy_stdio_definitions.lib', join('Windows', 'crt', 'get_output_format64.o')]
+    extra_link_args += [r'/LIBPATH:C:\msys64\ucrt64\lib', r'/LIBPATH:C:\msys64\mingw64\lib', r'/LIBPATH:%s' % pari_library_dir, r'/LIBPATH:%s' % gmp_library_dir]
     extra_objects += [r'C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22000.0\um\x64\Uuid.lib',
                      r'C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22000.0\um\x64\kernel32.lib',
                      r'C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22000.0\ucrt\x64\ucrt.lib',
                      r'C:\msys64\ucrt64\lib\gcc\x86_64-w64-mingw32\14.2.0\libgcc.a']
-    libraries = [pari_static_library, gmp_static_library]
 
 def local_scheme(version):
     return ""
