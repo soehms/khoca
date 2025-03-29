@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "Analyse on $(pwd)"
           echo "PUI $(find . -name '*pui*')"
-          echo "PyInit $(grep -r PyInit_ .)"
+          echo "PyInit_pui $(grep -r PyInit_pui .)"
 
       - uses: actions/upload-artifact@v4
         with:
