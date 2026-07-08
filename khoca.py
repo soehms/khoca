@@ -75,26 +75,150 @@ else:
 debugging = False
 NUM_THREADS = 1 if debugging else 12
 
+def components(pd_code):
+    r"""
+    Return the components of the link given by the ``pd_code``.
+
+    INPUT:
+
+        ``pd_code`` -- list of lists describing a valid PD-code as explained
+        in https://knotinfo.org/descriptions/pd_notation.html.
+
+    OUTPUT:
+
+    A list of pairs ``[component, orientation]`` where ``component`` is a list
+    of edges belonging to the component in the order they occur in the ``pd_code``
+    when moving along the component starting from the first crossing.
+    ``orientation can be one of ``1, -1, None``. If it is ``1`` the edges in
+    ``component`` are listed according to the orientation, and reverse to it
+    in the case of ``-1``. ``None`` means that the orientation can not be
+    determined.
+
+    EXEAMPLES::
+
+        >>> pd = [[1,2,3,4],[3,2,1,4]]
+        >>> components(pd)
+        [[[1, 3], 1], [[2, 4], None]]
+        >>> pd = [[2, 4, 3, 1],[4, 6, 5, 3],[6, 2, 1, 5]]
+        >>> components(pd)
+        [[[2, 3, 6, 1, 4, 5], 1]]
+        >>> pd = [[1, 5, 2, 4], [3, 1, 4, 6], [5, 3, 6, 2]]
+    """
+    def no_rap_around(c, asc=True):
+        r"""
+        Return a normalized list of edges of the compnent ``c`` which starts
+        with the lowest (resp. highest if ``asc==False``) edge.
+        """
+        if asc:
+            k = c.index(min(c))
+        else:
+            k = c.index(max(c))
+        return c[k:] + c[:k]
+
+    def comp_order_check(c):
+        r"""
+        Return ``1`` if the component ``c`` is oriented ascending and ``-1`` if
+        it is ordered descending. If it is unordered a ``RuntimeError`` is
+        raised.
+        """
+        cn = no_rap_around(c)
+        rg = range(len(c) - 1)
+        if all(cn[i] < cn[i + 1] for i in rg):
+            return 1
+        cn = no_rap_around(c, asc=False)
+        if all(cn[i] > cn[i + 1] for i in rg):
+            return -1
+        raise RuntimeError('Edges of component %s are not ordered' % c)
+
+    comps = []
+    component = []
+    orientation = None
+    edge = None
+    visited = set()
+    le = 2 * len(pd_code)
+    while len(visited) <= le:
+        for cr in pd_code:
+            if edge is None:
+                # start with new component
+                i = cr[0]
+                if i in visited:
+                    continue
+                else:
+                    edge = i
+                    component.append(edge)
+                    visited.add(edge)
+            if not edge in cr:
+                continue
+            pos = cr.index(edge)
+            new_edge = cr[(pos + 2) % 4]
+            closed = (new_edge == component[0])
+            if not orientation:
+                if pos == 0:
+                    if closed:
+                        orientation = -1
+                    else:
+                        orientation = 1
+                if pos == 2:
+                    if closed:
+                        orientation = 1
+                    else:
+                        orientation = -1
+            new_edge = cr[(pos + 2) % 4]
+            if closed:
+                # component closed
+                orientation *= comp_order_check(component)
+                comps.append([component, orientation])
+                component = []
+                edge = None
+                orientation = None
+                continue
+            if new_edge in visited:
+                continue
+            edge = new_edge
+            component.append(edge)
+            visited.add(edge)
+        if edge is None and len(visited) == le:
+            break
+    return comps
 
 ## Converts a link diagram given in the Planar-diagram notation to the mypd format.
 # @param pd A list of lists of four integers each, such as [[0,1,2,3],[1,4,5,2],[4,0,3,5] for the positive trefoil.
 # @return That link diagram in mypd-notation, type "0" for positive, type "1" for negative crossings.
 def pd_to_mypd(pd):
     result = list()
+    comps = components(pd)
+
+    def second_edge_incoming(cr):
+        r"""
+        Return ``True`` if the second edge is oriented towards the crossing.
+        """
+        a, b, c, d = cr
+        for comp, ori in comps:
+            if b in comp:
+                if not ori:
+                    # if orientation is not detectable take 1
+                    ori = 1
+                i = comp.index(b)
+                j = comp.index(d)
+                last_edge = len(comp) - 1
+                if i == last_edge and j == 0:
+                    # proceeding from b to d
+                    return -ori
+                if i == 0 and j == last_edge:
+                    # proceeding from d to b
+                    return ori
+                if i < j:
+                    # proceeding from b to d
+                    return -ori
+                else:
+                    # proceeding from d to b
+                    return ori
+
     for i in pd:
-        # If they are consecutive, we orient them ascending.
-        if abs(i[3] - i[1]) == 1:
-            if i[3] == i[1] + 1:
-                result.append([2,i[0] - 1,i[1] - 1,i[2] - 1,i[3] - 1])
-            else:
-                result.append([3,i[1] - 1,i[2] - 1,i[3] - 1,i[0] - 1])
-        # Now we have to assume that they form the looping end of a component in a link diagram.
-        # Which means they should be oriented descending.
+        if second_edge_incoming(i) > 0:
+            result.append([3,i[1] - 1,i[2] - 1,i[3] - 1,i[0] - 1])
         else:
-            if i[3] < i[1]:
-                result.append([2,i[0] - 1,i[1] - 1,i[2] - 1,i[3] - 1])
-            else:
-                result.append([3,i[1] - 1,i[2] - 1,i[3] - 1,i[0] - 1])
+            result.append([2,i[0] - 1,i[1] - 1,i[2] - 1,i[3] - 1])
     return result
 
 def generate_binary_tree(length, s = 0):
