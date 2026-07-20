@@ -115,24 +115,41 @@ def components(pd_code):
             k = c.index(max(c))
         return c[k:] + c[:k]
 
-    def comp_order_check(c):
+    def oriented_ordered(c, ori_pair):
         r"""
-        Return ``1`` if the component ``c`` is oriented ascending and ``-1`` if
-        it is ordered descending. If it is unordered a ``RuntimeError`` is
-        raised.
+        Return True if the component ``c`` is ordered according to the given
+        ``ori_pair``. If it is unordered a ``RuntimeError`` is raised.
         """
+        if not ori_pair:
+            # this might be the case for an isolated compponent. Since
+            # orientation is irrelevant in this case we choose it to be
+            # according to the order of edges
+            return True
+        if len(c) == 2:
+            return c == ori_pair
+        edge_from, edge_to = ori_pair
         cn = no_rap_around(c)
         rg = range(len(c) - 1)
         if all(cn[i] < cn[i + 1] for i in rg):
-            return 1
+            # edges are ordered ascending
+            if edge_from < edge_to:
+                return True
+            if cn[0] == edge_to:
+                return True
+            return False
         cn = no_rap_around(c, asc=False)
         if all(cn[i] > cn[i + 1] for i in rg):
-            return -1
+            # edges are ordered descending
+            if edge_from > edge_to:
+                return True
+            if cn[0] == edge_from:
+                return True
+            return False
         raise RuntimeError('Edges of component %s are not ordered' % c)
 
     comps = []
     component = []
-    orientation = None
+    ori_pair = None
     edge = None
     visited = set()
     le = 2 * len(pd_code)
@@ -152,25 +169,17 @@ def components(pd_code):
             pos = cr.index(edge)
             new_edge = cr[(pos + 2) % 4]
             closed = (new_edge == component[0])
-            if not orientation:
+            if not ori_pair:
                 if pos == 0:
-                    if closed:
-                        orientation = -1
-                    else:
-                        orientation = 1
+                    ori_pair = [edge, new_edge]
                 if pos == 2:
-                    if closed:
-                        orientation = 1
-                    else:
-                        orientation = -1
-            new_edge = cr[(pos + 2) % 4]
+                    ori_pair = [new_edge, edge]
             if closed:
                 # component closed
-                orientation *= comp_order_check(component)
-                comps.append([component, orientation])
+                comps.append([component, oriented_ordered(component, ori_pair)])
                 component = []
                 edge = None
-                orientation = None
+                ori_pair = None
                 continue
             if new_edge in visited:
                 continue
@@ -195,30 +204,27 @@ def pd_to_mypd(pd):
         a, b, c, d = cr
         for comp, ori in comps:
             if b in comp:
-                if not ori:
-                    # if orientation is not detectable take 1
-                    ori = 1
                 i = comp.index(b)
                 j = comp.index(d)
-                last_edge = len(comp) - 1
-                if i == last_edge and j == 0:
-                    # proceeding from b to d
-                    return -ori
-                if i == 0 and j == last_edge:
-                    # proceeding from d to b
+                last_pos = len(comp) - 1
+                if i == last_pos and j == 0:
+                    # proceeding from b to d in ascending order
                     return ori
+                if i == 0 and j == last_pos:
+                    # proceeding from b to d in descending order
+                    return not ori
                 if i < j:
-                    # proceeding from b to d
-                    return -ori
-                else:
-                    # proceeding from d to b
+                    # proceeding from b to d in ascending order
                     return ori
+                else:
+                    # proceeding from b to d in descending order
+                    return not ori
 
     for i in pd:
-        if second_edge_incoming(i) > 0:
-            result.append([3,i[1] - 1,i[2] - 1,i[3] - 1,i[0] - 1])
-        else:
+        if second_edge_incoming(i):
             result.append([2,i[0] - 1,i[1] - 1,i[2] - 1,i[3] - 1])
+        else:
+            result.append([3,i[1] - 1,i[2] - 1,i[3] - 1,i[0] - 1])
     return result
 
 def generate_binary_tree(length, s = 0):
