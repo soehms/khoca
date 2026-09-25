@@ -81,20 +81,45 @@ NUM_THREADS = 1 if debugging else 12
 # @return That link diagram in mypd-notation, type "0" for positive, type "1" for negative crossings.
 def pd_to_mypd(pd):
     result = list()
+    consecutive_edges = [(cr[0], cr[2]) for cr in pd]
+
+    def append_neg():
+        result.append([2, a - 1, b - 1, c - 1, d - 1])
+
+    def append_pos():
+        result.append([3, b - 1, c - 1, d - 1, a - 1])
+
     for i in pd:
         # If they are consecutive, we orient them ascending.
-        if abs(i[3] - i[1]) == 1:
-            if i[3] == i[1] + 1:
-                result.append([2,i[0] - 1,i[1] - 1,i[2] - 1,i[3] - 1])
+        a, b, c, d = i
+        if abs(d - b) == 1:
+            if d == b + 1:
+                if (b, d) in consecutive_edges:
+                    # looping end in two-edge trivial component
+                    append_pos()
+                else:
+                    append_neg()
+                    consecutive_edges += [(b, d)]
             else:
-                result.append([3,i[1] - 1,i[2] - 1,i[3] - 1,i[0] - 1])
+                if (d, b) in consecutive_edges:
+                    # looping end in two-edge trivial component
+                    append_neg()
+                else:
+                    append_pos()
+                    consecutive_edges += [(d, b)]
         # Now we have to assume that they form the looping end of a component in a link diagram.
         # Which means they should be oriented descending.
         else:
-            if i[3] < i[1]:
-                result.append([2,i[0] - 1,i[1] - 1,i[2] - 1,i[3] - 1])
+            if d < b:
+                if (d, d + 1) in consecutive_edges:
+                    append_neg()
+                else:
+                    raise ValueError('Invalid PD-Code! Looping end for (%s, %s) not detectible.' % (d + 1,  b + 1))
             else:
-                result.append([3,i[1] - 1,i[2] - 1,i[3] - 1,i[0] - 1])
+                if (b, b + 1) in consecutive_edges:
+                    append_pos()
+                else:
+                    raise ValueError('Invalid PD-Code! Looping end for (%s, %s) not detectible.' % (d + 1,  b + 1))
     return result
 
 def generate_binary_tree(length, s = 0):
